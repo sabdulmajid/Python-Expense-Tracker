@@ -30,10 +30,15 @@ sent_transfers = filtered_expenses[
 # Sum the sent e-transfers for the specified range of months
 total_sent_transfers = sent_transfers['Expense'].sum()
 
+# Find all FreshCo and InstaCart entries in the specified range of months
+groceries_expenses = filtered_expenses[
+    filtered_expenses['Transaction Type'].str.contains('FRESHCO|INSTACART', case=False)
+]['Expense'].sum()
+
 # Create a DataFrame with the totals
 totals_df = pd.DataFrame({
-    'Transaction Type': ['Total expenses', 'Total sent e-transfers (without rent)'],
-    'Expense': [total_expenses, total_sent_transfers]
+    'Transaction Type': ['Total expenses', 'Total sent e-transfers (without rent)', 'Total FreshCo & InstaCart'],
+    'Expense': [total_expenses, total_sent_transfers, groceries_expenses]
 })
 
 # Append the totals DataFrame to the original DataFrame
@@ -45,3 +50,4 @@ df.to_excel('expenses.xlsx', index=False)
 # Output the results with 2 decimal places
 print(f"Total expenses from {start_month}/{start_year} to {end_month}/{end_year}: ${total_expenses:.2f}")
 print(f"Total sent e-transfers (without rent) from {start_month}/{start_year} to {end_month}/{end_year}: ${total_sent_transfers:.2f}")
+print(f"Total FreshCo & InstaCart from {start_month}/{start_year} to {end_month}/{end_year}: ${groceries_expenses:.2f}")
