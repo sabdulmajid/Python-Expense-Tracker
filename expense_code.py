@@ -38,12 +38,11 @@ groceries_expenses = filtered_expenses[
 # Find all outside fast food purchases and calculate the total
 fast_food_expenses = filtered_expenses[
     filtered_expenses['Transaction Type'].str.contains('DD|TAHINI|DOMINO|KABOB SHACK|MATH COFFEE|TIM HORTONS|UBER\* EATS|MAC SUSHI|SHIN WA|HARVEY|SWEET DREAMS|GONG CHA', case=False)
-]
+]['Expense']
 
 fast_food_total = 0
-for _, row in fast_food_expenses.iterrows():
+for expense in fast_food_expenses:
     try:
-        expense = row['Expense']
         if expense > 30:
             expense = expense / 2
         fast_food_total += expense
