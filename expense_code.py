@@ -6,20 +6,25 @@ df = pd.read_excel('expenses.xlsx')
 # Convert the date column to a datetime data type
 df['Date'] = pd.to_datetime(df['Date'], format='%m/%d/%Y')
 
-# Define the month and year you're interested in
-target_month = 1
-target_year = 2023
+# Define the range of months and years you're interested in
+start_month = 1
+start_year = 2023
+end_month = 5
+end_year = 2023
 
-# Filter the expenses for the specific month and year
-filtered_expenses = df[(df['Date'].dt.month == target_month) & (df['Date'].dt.year == target_year)]
+# Filter the expenses for the specified range of months and years
+filtered_expenses = df[
+    (df['Date'].dt.month >= start_month) & (df['Date'].dt.year >= start_year) &
+    (df['Date'].dt.month <= end_month) & (df['Date'].dt.year <= end_year)
+]
 
-# Sum the expenses for the specific month
+# Sum the expenses for the specified range of months
 total_expenses = filtered_expenses['Expense'].sum()
 
-# Find all sent e-transfers in the specific month
+# Find all sent e-transfers in the specified range of months
 sent_transfers = filtered_expenses[filtered_expenses['Transaction Type'].str.startswith('SEND E-TFR')]
 
-# Sum the sent e-transfers for the specific month
+# Sum the sent e-transfers for the specified range of months
 total_sent_transfers = sent_transfers['Expense'].sum()
 
 # Create a DataFrame with the totals
@@ -35,5 +40,5 @@ df = pd.concat([df, totals_df], ignore_index=True)
 df.to_excel('expenses.xlsx', index=False)
 
 # Output the results with 2 decimal places
-print(f"Total expenses for {target_month}/{target_year}: ${total_expenses:.2f}")
-print(f"Total sent e-transfers (without rent) for {target_month}/{target_year}: ${total_sent_transfers-1000:.2f}")
+print(f"Total expenses from {start_month}/{start_year} to {end_month}/{end_year}: ${total_expenses:.2f}")
+print(f"Total sent e-transfers (without rent) from {start_month}/{start_year} to {end_month}/{end_year}: ${total_sent_transfers-1000:.2f}")
