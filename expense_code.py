@@ -18,8 +18,8 @@ filtered_expenses = df[
     (df['Date'].dt.month <= end_month) & (df['Date'].dt.year <= end_year)
 ]
 
-# Sum the expenses for the specified range of months
-total_expenses = filtered_expenses['Expense'].sum()
+# Exclude rent from the total expenses
+total_expenses = filtered_expenses[filtered_expenses['Expense'] != 1000]['Expense'].sum()
 
 # Find all sent e-transfers in the specified range of months, excluding rent
 sent_transfers = filtered_expenses[
@@ -30,15 +30,22 @@ sent_transfers = filtered_expenses[
 # Sum the sent e-transfers for the specified range of months
 total_sent_transfers = sent_transfers['Expense'].sum()
 
-# Find all FreshCo and InstaCart entries in the specified range of months
-groceries_expenses = filtered_expenses[
-    filtered_expenses['Transaction Type'].str.contains('FRESHCO|INSTACART', case=False)
-]['Expense'].sum()
+# Find all outside fast food purchases and calculate the total
+fast_food_expenses = filtered_expenses[
+    filtered_expenses['Transaction Type'].str.contains('DD|TAHINI|DOMINO|KABOB SHACK|MATH COFFEE|TIM HORTONS|UBER\* EATS|MAC SUSHI|SHIN WA|HARVEY|SWEET DREAMS|GONG CHA', case=False)
+]
+
+fast_food_total = 0
+for _, row in fast_food_expenses.iterrows():
+    expense = row['Expense']
+    if expense > 30:
+        expense = expense / 2
+    fast_food_total += expense
 
 # Create a DataFrame with the totals
 totals_df = pd.DataFrame({
-    'Transaction Type': ['Total expenses', 'Total sent e-transfers (without rent)', 'Total FreshCo & InstaCart'],
-    'Expense': [total_expenses, total_sent_transfers, groceries_expenses]
+    'Transaction Type': ['Total expenses', 'Total sent e-transfers (without rent)', 'Total FreshCo & InstaCart', 'Total Outside Fast Food'],
+    'Expense': [total_expenses, total_sent_transfers, groceries_expenses, fast_food_total]
 })
 
 # Append the totals DataFrame to the original DataFrame
@@ -51,3 +58,4 @@ df.to_excel('expenses.xlsx', index=False)
 print(f"Total expenses from {start_month}/{start_year} to {end_month}/{end_year}: ${total_expenses:.2f}")
 print(f"Total sent e-transfers (without rent) from {start_month}/{start_year} to {end_month}/{end_year}: ${total_sent_transfers:.2f}")
 print(f"Total FreshCo & InstaCart from {start_month}/{start_year} to {end_month}/{end_year}: ${groceries_expenses:.2f}")
+print(f"Total Outside Fast Food from {start_month}/{start_year} to {end_month}/{end_year}: ${fast_food_total:.2f}")
